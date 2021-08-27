@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include <Windows.h>
 using namespace std;
 
@@ -21,6 +22,15 @@ int main()
 
     // game loop
     while (true) 	{
+        // movement controls
+        auto timeLastMovement = chrono::system_clock::now();
+        if ((chrono::system_clock::now() - timeLastMovement).count() < 1000) {
+            if (GetAsyncKeyState((unsigned short)'W') & 0x8000) {
+				headY -= 1;
+                timeLastMovement = chrono::system_clock::now();
+            }
+        }
+
         // draw head
         screen[(headY * screenWidth) + headX] = 'X';
 
