@@ -1,12 +1,19 @@
 #include <iostream>
 #include <chrono>
 #include <Windows.h>
+#include <queue>
 using namespace std;
 
 const int screenWidth = 120;
 const int screenHeight = 40;
 
+struct point {
+    int x;
+    int y;
+};
+
 const float speed = 1.5f;
+queue<point> *snake = new queue<point>();
 
 int headX = 12;
 int headY = 12;
@@ -16,6 +23,8 @@ Direction playerDirection = UP;
 
 int main()
 {
+    snake->push({ headX, headY });
+
     HANDLE console = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(console);
     DWORD bytesWritten = 0;
@@ -44,6 +53,9 @@ int main()
             playerDirection = LEFT;
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
             playerDirection = RIGHT;
+        if (GetAsyncKeyState((unsigned short)'I') & 0x8000) {
+            snake->push({ headX, headY });
+        }
 
         // move head according to direction
         if (movementDelayCounter >= 1000000 * speed) { // every <speed> seconds
@@ -75,6 +87,12 @@ int main()
             headY = 0;
         if (headY < 0)
             headY = screenHeight- 1;
+
+        // handle track removal
+        point p = snake->front();
+        snake->pop();
+        screen[(p.y * screenWidth) + p.x] = ' ';
+        snake->push({ headX, headY });
 
         // draw head
         screen[(headY * screenWidth) + headX] = 'X';
