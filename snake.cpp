@@ -9,6 +9,9 @@ const int screenHeight = 40;
 int headX = 12;
 int headY = 12;
 
+enum Direction {up, down, left, right};
+Direction playerDirection = up;
+
 int main()
 {
     HANDLE console = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
@@ -20,15 +23,26 @@ int main()
 	for (int i = 0; i < screenWidth * screenHeight; i++)
 		screen[i] = ' ';
 
+	auto lastTime = chrono::system_clock::now();
+    float movementDelayCounter = 0.0f;
+    float timeDelta;
     // game loop
     while (true) 	{
+        // calculating time delta 
+        auto timeNow = chrono::system_clock::now();
+        timeDelta = (timeNow - lastTime).count();
+        lastTime = timeNow;
+
         // movement controls
-        auto timeLastMovement = chrono::system_clock::now();
-        if ((chrono::system_clock::now() - timeLastMovement).count() < 1000) {
-            if (GetAsyncKeyState((unsigned short)'W') & 0x8000) {
-				headY -= 1;
-                timeLastMovement = chrono::system_clock::now();
-            }
+		if (GetAsyncKeyState((unsigned short)'W') & 0x8000) {
+		}
+
+        // move head according to direction
+        if (movementDelayCounter >= 1000000 ) {
+            headY -= 1;
+            movementDelayCounter = 0;
+        } else {
+            movementDelayCounter += timeDelta;
         }
 
         // draw head
