@@ -28,6 +28,8 @@ Direction playerDirection = UP;
 
 int lvl = 0;
 
+bool alive = true;
+
 int main()
 {
     snake->push({ headX, headY });
@@ -61,6 +63,10 @@ int main()
             playerDirection = LEFT;
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
             playerDirection = RIGHT;
+        
+        if (! alive) {
+            continue;
+        }
 
         // every <speed> seconds
         if (movementDelayCounter >= 1000000 * speed) { 
@@ -102,11 +108,18 @@ int main()
             else 
 			    snake->pop();
 
+            // draw score
+            wsprintf(&screen[1], L"snake x:%d y:%d", headX, headY);
+
+            // death handling
+            if (screen[calculateScreenPosition(headX, headY)] == 's') {
+                for (int i = 0; i < screenWidth; i++) screen[i] = ' ';
+                wsprintf(&screen[1], L"GAME OVER! Press SPACE to restart.");
+                alive = false;
+            }
+
 			// draw head
 			screen[calculateScreenPosition(headX, headY)] = 's';
-
-            // draw score
-            wsprintf(&screen[1], L"memes x:%d y:%d", headX, headY);
 
 			// render screen to console 
 			screen[screenWidth * screenHeight - 1] = '\0';
