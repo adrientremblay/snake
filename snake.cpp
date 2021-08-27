@@ -5,6 +5,11 @@
 #include <stdlib.h>
 using namespace std;
 
+int calculateScreenPosition(int x, int y);
+void spawnApple();
+
+wchar_t* screen;
+
 const int screenWidth = 120;
 const int screenHeight = 40;
 
@@ -33,13 +38,11 @@ int main()
     DWORD bytesWritten = 0;
 
     // creating screen
-    wchar_t* screen = new wchar_t[screenWidth * screenHeight];
+    screen = new wchar_t[screenWidth * screenHeight];
 	for (int i = 0; i < screenWidth * screenHeight; i++)
 		screen[i] = ' ';
     // first apple
-    int randX = rand() % screenWidth;
-    int randY = rand() % screenHeight;
-    screen[(randY * screenWidth) + randX] = 'a';
+    spawnApple();
 
 	auto lastTime = chrono::system_clock::now();
     float movementDelayCounter = 0.0f;
@@ -61,8 +64,9 @@ int main()
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
             playerDirection = RIGHT;
 
-        // move head according to direction
-        if (movementDelayCounter >= 1000000 * speed) { // every <speed> seconds
+        // every <speed> seconds
+        if (movementDelayCounter >= 1000000 * speed) { 
+            // move head according to direction
             switch (playerDirection) {
                 case UP:
                     headY -= 1;
@@ -91,21 +95,19 @@ int main()
 
 			bool skip = false;
 			// apple handling
-			if (screen[headY * screenWidth + headX] == 'a') {
-				int randX = rand() % screenWidth;
-				int randY = rand() % screenHeight;
-				screen[(randY * screenWidth) + randX] = 'a';
+			if (screen[calculateScreenPosition(headX, headY)] == 'a') {
+                spawnApple();
 				skip = true;
 			} 
 
 			// handle track removal
 			point p = snake->front();
 			if (!skip && ! (GetAsyncKeyState((unsigned short)'I') & 0x8000)) snake->pop();
-			screen[(p.y * screenWidth) + p.x] = ' ';
+			screen[calculateScreenPosition(p.x, p.y)] = ' ';
 			snake->push({ headX, headY });
 
 			// draw head
-			screen[(headY * screenWidth) + headX] = 's';
+			screen[calculateScreenPosition(headX, headY)] = 's';
 
 			// render screen to console 
 			screen[screenWidth * screenHeight - 1] = '\0';
@@ -116,3 +118,15 @@ int main()
     }
 }
 
+int calculateScreenPosition(int x, int y) {
+    return y * screenWidth + x;
+}
+
+void spawnApple() {
+    int randX;
+    int randY;
+
+    randX = rand() % screenWidth;
+    randY = rand() % screenHeight;
+    screen[calculateScreenPosition(randX, randY)] = 'a';
+}
