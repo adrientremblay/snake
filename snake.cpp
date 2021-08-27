@@ -2,6 +2,7 @@
 #include <chrono>
 #include <Windows.h>
 #include <queue>
+#include <stdlib.h>
 using namespace std;
 
 const int screenWidth = 120;
@@ -21,6 +22,8 @@ int headY = 12;
 enum Direction {UP, DOWN, LEFT, RIGHT};
 Direction playerDirection = UP;
 
+int lvl = 0;
+
 int main()
 {
     snake->push({ headX, headY });
@@ -33,6 +36,10 @@ int main()
     wchar_t* screen = new wchar_t[screenWidth * screenHeight];
 	for (int i = 0; i < screenWidth * screenHeight; i++)
 		screen[i] = ' ';
+    // first apple
+    int randX = rand() % screenWidth;
+    int randY = rand() % screenHeight;
+    screen[(randY * screenWidth) + randX] = 'a';
 
 	auto lastTime = chrono::system_clock::now();
     float movementDelayCounter = 0.0f;
@@ -71,34 +78,41 @@ int main()
                     break;
             }
             movementDelayCounter = 0;
-        } else {
-            movementDelayCounter += timeDelta;
-        }
 
-        // handle wall looping(collision)
-        if (headX >= screenWidth)
-            headX = 0;
-        if (headX < 0)
-            headX = screenWidth- 1;
-        if (headY >= screenHeight)
-            headY = 0;
-        if (headY < 0)
-            headY = screenHeight- 1;
+			// wall handling
+			if (headX >= screenWidth)
+				headX = 0;
+			if (headX < 0)
+				headX = screenWidth- 1;
+			if (headY >= screenHeight)
+				headY = 0;
+			if (headY < 0)
+				headY = screenHeight- 1;
 
-        // handle track removal
-        point p = snake->front();
-        if (! (GetAsyncKeyState((unsigned short)'I') & 0x8000)) {
-            snake->pop();
-        }
-        screen[(p.y * screenWidth) + p.x] = ' ';
-        snake->push({ headX, headY });
+			bool skip = false;
+			// apple handling
+			if (screen[headY * screenWidth + headX] == 'a') {
+				int randX = rand() % screenWidth;
+				int randY = rand() % screenHeight;
+				screen[(randY * screenWidth) + randX] = 'a';
+				skip = true;
+			} 
 
-        // draw head
-        screen[(headY * screenWidth) + headX] = 'X';
+			// handle track removal
+			point p = snake->front();
+			if (!skip && ! (GetAsyncKeyState((unsigned short)'I') & 0x8000)) snake->pop();
+			screen[(p.y * screenWidth) + p.x] = ' ';
+			snake->push({ headX, headY });
 
-        // render screen to console 
-        screen[screenWidth * screenHeight - 1] = '\0';
-        WriteConsoleOutputCharacter(console, screen, screenWidth * screenHeight, { 0,0 }, &bytesWritten);
+			// draw head
+			screen[(headY * screenWidth) + headX] = 's';
+
+			// render screen to console 
+			screen[screenWidth * screenHeight - 1] = '\0';
+			WriteConsoleOutputCharacter(console, screen, screenWidth * screenHeight, { 0,0 }, &bytesWritten);
+		} else {
+			movementDelayCounter += timeDelta;
+		}
     }
 }
 
