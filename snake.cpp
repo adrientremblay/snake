@@ -6,6 +6,8 @@ using namespace std;
 const int screenWidth = 120;
 const int screenHeight = 40;
 
+const float speed = 1.5f;
+
 int headX = 12;
 int headY = 12;
 
@@ -44,7 +46,7 @@ int main()
             playerDirection = RIGHT;
 
         // move head according to direction
-        if (movementDelayCounter >= 1000000 * 3) { // 3 seconds
+        if (movementDelayCounter >= 1000000 * speed) { // every <speed> seconds
             switch (playerDirection) {
                 case UP:
                     headY -= 1;
@@ -63,6 +65,16 @@ int main()
         } else {
             movementDelayCounter += timeDelta;
         }
+
+        // handle wall looping(collision)
+        if (headX >= screenWidth)
+            headX = 0;
+        if (headX < 0)
+            headX = screenWidth- 1;
+        if (headY >= screenHeight)
+            headY = 0;
+        if (headY < 0)
+            headY = screenHeight- 1;
 
         // draw head
         screen[(headY * screenWidth) + headX] = 'X';
