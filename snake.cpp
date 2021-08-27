@@ -9,8 +9,8 @@ const int screenHeight = 40;
 int headX = 12;
 int headY = 12;
 
-enum Direction {up, down, left, right};
-Direction playerDirection = up;
+enum Direction {UP, DOWN, LEFT, RIGHT};
+Direction playerDirection = UP;
 
 int main()
 {
@@ -34,12 +34,31 @@ int main()
         lastTime = timeNow;
 
         // movement controls
-		if (GetAsyncKeyState((unsigned short)'W') & 0x8000) {
-		}
+		if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+            playerDirection = UP;
+		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+            playerDirection = DOWN;
+		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+            playerDirection = LEFT;
+		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+            playerDirection = RIGHT;
 
         // move head according to direction
-        if (movementDelayCounter >= 1000000 ) {
-            headY -= 1;
+        if (movementDelayCounter >= 1000000 * 3) { // 3 seconds
+            switch (playerDirection) {
+                case UP:
+                    headY -= 1;
+                    break;
+                case DOWN:
+                    headY += 1;
+                    break;
+                case LEFT:
+                    headX -= 1;
+                    break;
+                case RIGHT:
+                    headX += 1;
+                    break;
+            }
             movementDelayCounter = 0;
         } else {
             movementDelayCounter += timeDelta;
