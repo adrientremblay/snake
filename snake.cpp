@@ -5,23 +5,26 @@ using namespace std;
 const int screenWidth = 120;
 const int screenHeight = 40;
 
+int headX = 12;
+int headY = 12;
+
 int main()
 {
-    wchar_t* screen = new wchar_t[screenWidth * screenHeight];
-    for (int i = 0; i < screenWidth * screenHeight; i++) {
-        screen[i] = '1';
-    }
-
-    cout << screen;
-
     HANDLE console = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(console);
     DWORD bytesWritten = 0;
 
+    // creating screen
+    wchar_t* screen = new wchar_t[screenWidth * screenHeight];
+	for (int i = 0; i < screenWidth * screenHeight; i++)
+		screen[i] = ' ';
+
+    // game loop
     while (true) 	{
+        // draw head
+        screen[(headY * screenWidth) + headX] = 'X';
 
-
-        // draw screen to console 
+        // render screen to console 
         screen[screenWidth * screenHeight - 1] = '\0';
         WriteConsoleOutputCharacter(console, screen, screenWidth * screenHeight, { 0,0 }, &bytesWritten);
     }
