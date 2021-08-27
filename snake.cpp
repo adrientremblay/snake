@@ -18,12 +18,11 @@ struct point {
     int y;
 };
 
-const float speed = 1.5f;
+const float speed = 1.25f;
 queue<point> *snake = new queue<point>();
 
 int headX = 12;
-int headY = 12;
-
+int headY = 12; 
 enum Direction {UP, DOWN, LEFT, RIGHT};
 Direction playerDirection = UP;
 
@@ -41,7 +40,6 @@ int main()
     screen = new wchar_t[screenWidth * screenHeight];
 	for (int i = 0; i < screenWidth * screenHeight; i++)
 		screen[i] = ' ';
-    // first apple
     spawnApple();
 
 	auto lastTime = chrono::system_clock::now();
@@ -90,24 +88,25 @@ int main()
 				headX = screenWidth- 1;
 			if (headY >= screenHeight)
 				headY = 0;
-			if (headY < 0)
+			if (headY < 1)
 				headY = screenHeight- 1;
-
-			bool skip = false;
-			// apple handling
-			if (screen[calculateScreenPosition(headX, headY)] == 'a') {
-                spawnApple();
-				skip = true;
-			} 
 
 			// handle track removal
 			point p = snake->front();
-			if (!skip && ! (GetAsyncKeyState((unsigned short)'I') & 0x8000)) snake->pop();
 			screen[calculateScreenPosition(p.x, p.y)] = ' ';
 			snake->push({ headX, headY });
 
+			// apple handling
+			if (screen[calculateScreenPosition(headX, headY)] == 'a')
+                spawnApple();
+            else 
+			    snake->pop();
+
 			// draw head
 			screen[calculateScreenPosition(headX, headY)] = 's';
+
+            // draw score
+            wsprintf(&screen[1], L"memes x:%d y:%d", headX, headY);
 
 			// render screen to console 
 			screen[screenWidth * screenHeight - 1] = '\0';
@@ -127,6 +126,6 @@ void spawnApple() {
     int randY;
 
     randX = rand() % screenWidth;
-    randY = rand() % screenHeight;
+    randY = (rand() % (screenHeight - 1)) + 1; // not 0
     screen[calculateScreenPosition(randX, randY)] = 'a';
 }
