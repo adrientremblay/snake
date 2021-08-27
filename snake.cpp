@@ -53,9 +53,6 @@ int main()
             playerDirection = LEFT;
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
             playerDirection = RIGHT;
-        if (GetAsyncKeyState((unsigned short)'I') & 0x8000) {
-            snake->push({ headX, headY });
-        }
 
         // move head according to direction
         if (movementDelayCounter >= 1000000 * speed) { // every <speed> seconds
@@ -90,7 +87,9 @@ int main()
 
         // handle track removal
         point p = snake->front();
-        snake->pop();
+        if (! (GetAsyncKeyState((unsigned short)'I') & 0x8000)) {
+            snake->pop();
+        }
         screen[(p.y * screenWidth) + p.x] = ' ';
         snake->push({ headX, headY });
 
