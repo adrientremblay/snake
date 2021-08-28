@@ -7,6 +7,7 @@ using namespace std;
 
 int calculateScreenPosition(int x, int y);
 void spawnApple();
+void setupGame();
 
 wchar_t* screen;
 
@@ -19,30 +20,28 @@ struct point {
 };
 
 const float speed = 1.25f;
-queue<point> *snake = new queue<point>();
+queue<point>* snake;
 
-int headX = 12;
-int headY = 12; 
+int headX;
+int headY; 
 enum Direction {UP, DOWN, LEFT, RIGHT};
-Direction playerDirection = UP;
+Direction playerDirection;
 
-int lvl = 0;
+int lvl;
 
-bool alive = true;
+bool alive;
 
 int main()
 {
-    snake->push({ headX, headY });
-
     HANDLE console = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(console);
     DWORD bytesWritten = 0;
 
     // creating screen
     screen = new wchar_t[screenWidth * screenHeight];
-	for (int i = 0; i < screenWidth * screenHeight; i++)
-		screen[i] = ' ';
-    spawnApple();
+
+    // setting up game
+    setupGame();
 
 	auto lastTime = chrono::system_clock::now();
     float movementDelayCounter = 0.0f;
@@ -65,6 +64,9 @@ int main()
             playerDirection = RIGHT;
         
         if (! alive) {
+            if (GetAsyncKeyState((unsigned short)' ') & 0x8000) {
+                setupGame();
+            }
             continue;
         }
 
@@ -141,4 +143,17 @@ void spawnApple() {
     randX = rand() % screenWidth;
     randY = (rand() % (screenHeight - 1)) + 1; // not 0
     screen[calculateScreenPosition(randX, randY)] = 'a';
+}
+
+void setupGame() {
+    headX = 12;
+    headY = 12;
+	for (int i = 0; i < screenWidth * screenHeight; i++)
+		screen[i] = ' ';
+    spawnApple();
+    snake = new queue<point>();
+    snake->push({ headX, headY });
+    alive = true;
+    lvl = 0;
+    playerDirection = UP;
 }
