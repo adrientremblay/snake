@@ -62,6 +62,10 @@ int main()
             playerDirection = LEFT;
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
             playerDirection = RIGHT;
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x01)
+			PostMessage(GetConsoleWindow(), WM_CLOSE, 0, 0);
+
+
         
         if (! alive) {
             if (GetAsyncKeyState((unsigned short)' ') & 0x8000) {
