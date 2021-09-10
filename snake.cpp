@@ -71,64 +71,64 @@ int main()
         }
 
         // every <speed> seconds
-        if (movementDelayCounter >= 1000000 * speed) { 
-            // move head according to direction
-            switch (playerDirection) {
-                case UP:
-                    headY -= 1;
-                    break;
-                case DOWN:
-                    headY += 1;
-                    break;
-                case LEFT:
-                    headX -= 1;
-                    break;
-                case RIGHT:
-                    headX += 1;
-                    break;
-            }
-            movementDelayCounter = 0;
-
-			// wall handling
-			if (headX >= screenWidth)
-				headX = 0;
-			if (headX < 0)
-				headX = screenWidth- 1;
-			if (headY >= screenHeight)
-				headY = 0;
-			if (headY < 1)
-				headY = screenHeight- 1;
-
-			// handle track removal
-			point p = snake->front();
-			screen[calculateScreenPosition(p.x, p.y)] = ' ';
-			snake->push({ headX, headY });
-
-			// apple handling
-			if (screen[calculateScreenPosition(headX, headY)] == 'a')
-                spawnApple();
-            else 
-			    snake->pop();
-
-            // draw score
-            wsprintf(&screen[1], L"snake x:%d y:%d", headX, headY);
-
-            // death handling
-            if (screen[calculateScreenPosition(headX, headY)] == 's') {
-                for (int i = 0; i < screenWidth; i++) screen[i] = ' ';
-                wsprintf(&screen[1], L"GAME OVER! Press SPACE to restart.");
-                alive = false;
-            }
-
-			// draw head
-			screen[calculateScreenPosition(headX, headY)] = 's';
-
-			// render screen to console 
-			screen[screenWidth * screenHeight - 1] = '\0';
-			WriteConsoleOutputCharacter(console, screen, screenWidth * screenHeight, { 0,0 }, &bytesWritten);
-		} else {
+        if (movementDelayCounter < 1000000 * speed) {
 			movementDelayCounter += timeDelta;
+            continue;
+        }
+		movementDelayCounter = 0;
+		// move head according to direction
+		switch (playerDirection) {
+			case UP:
+				headY -= 1;
+				break;
+			case DOWN:
+				headY += 1;
+				break;
+			case LEFT:
+				headX -= 1;
+				break;
+			case RIGHT:
+				headX += 1;
+				break;
 		}
+
+		// wall handling
+		if (headX >= screenWidth)
+			headX = 0;
+		if (headX < 0)
+			headX = screenWidth- 1;
+		if (headY >= screenHeight)
+			headY = 0;
+		if (headY < 1)
+			headY = screenHeight- 1;
+
+		// handle track removal
+		point p = snake->front();
+		screen[calculateScreenPosition(p.x, p.y)] = ' ';
+		snake->push({ headX, headY });
+
+		// apple handling
+		if (screen[calculateScreenPosition(headX, headY)] == 'a')
+			spawnApple();
+		else 
+			snake->pop();
+
+		// draw score
+		wsprintf(&screen[1], L"snake x:%d y:%d", headX, headY);
+
+		// death handling
+		if (screen[calculateScreenPosition(headX, headY)] == 's') {
+			for (int i = 0; i < screenWidth; i++) screen[i] = ' ';
+			wsprintf(&screen[1], L"GAME OVER! Press SPACE to restart.");
+			alive = false;
+		}
+
+		// draw head
+		screen[calculateScreenPosition(headX, headY)] = 's';
+
+		// render screen to console 
+		screen[screenWidth * screenHeight - 1] = '\0';
+		WriteConsoleOutputCharacter(console, screen, screenWidth * screenHeight, { 0,0 }, &bytesWritten);
     }
 }
 
